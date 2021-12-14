@@ -1,9 +1,6 @@
 import React from 'react';
 import './App.css';
-import Empty from './components/Empty';
-import Modal from './components/Modal';
-import StudentsList from './components/StudentsList';
-import TotalFooter from './components/TotalFooter';
+import { StudentsList, Modal, Empty, TotalFooter } from './components/';
 
 function App() {
   const [isModal, setShowModal] = React.useState(false);
@@ -19,7 +16,10 @@ function App() {
   ]);
   const [studentsEdit, setStudentsEdit] = React.useState({});
 
-  const totalPay = studentsList.reduce((accumulator = 0, obj) => accumulator + Number(obj.payment), 0)
+  const totalPay = studentsList.reduce(
+    (accumulator = 0, obj) => accumulator + Number(obj.payment),
+    0,
+  );
 
   const toggleModal = (id) => {
     if (id) {
@@ -36,8 +36,8 @@ function App() {
   };
 
   const clearAllStudents = () => {
-    setStudentsList([])
-  }
+    setStudentsList([]);
+  };
 
   const addStudent = (student, id) => {
     if (id) {
@@ -82,7 +82,12 @@ function App() {
         ) : (
           <Empty toggleModal={toggleModal} />
         )}
-        <TotalFooter clearAllStudents={clearAllStudents} totalPay={totalPay} totalStudents={studentsList.length}  showModal={toggleModal} />
+        <TotalFooter
+          clearAllStudents={clearAllStudents}
+          totalPay={totalPay}
+          totalStudents={studentsList.length}
+          showModal={toggleModal}
+        />
       </div>
       {isModal && <Modal {...studentsEdit} addStudent={addStudent} toggleModal={toggleModal} />}
     </div>

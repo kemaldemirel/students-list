@@ -4,9 +4,9 @@ import editIcon from '../assets/img/icons/edit.svg';
 
 const Student = ({ id, avatarURL, fullName, age, gender, payment, showModal, onDeleteStudent }) => {
 
-  const handelClickEdit = (id) => {
+  /* const handelClickEdit = (id) => {
     showModal(id)
-  }
+  } */
 
   return (
     <div className="student__column">
@@ -32,7 +32,7 @@ const Student = ({ id, avatarURL, fullName, age, gender, payment, showModal, onD
         </div>
       </div>
       <div className="student__action">
-        <div onClick={() => handelClickEdit(id)} className="student__edit">
+        <div onClick={() => showModal(id)} className="student__edit">
           <img src={editIcon} alt="" />
         </div>
         <div onClick={() => onDeleteStudent(id)} className="student__remove">

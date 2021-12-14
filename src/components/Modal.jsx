@@ -1,7 +1,14 @@
 import React from 'react'
 import removeIcon from '../assets/img/icons/remove.svg'
 
-const Modal = ({ toggleModal, addStudent, fullName, gender, payment, age, id }) => {
+const Modal = ({
+  toggleModal,
+  addStudent,
+  fullName = "",
+  gender = "",
+  payment = "",
+  age = "",
+  id = null }) => {
 
   const [student, setStudent] = React.useState({
     fullName,
@@ -18,8 +25,12 @@ const Modal = ({ toggleModal, addStudent, fullName, gender, payment, age, id }) 
     })
   }
 
-  const handleClick = (id = null) => {
-    addStudent(student, id)
+  const handleClick = (id) => {
+    if (student.age > 0 && student.payment > 0) {
+      addStudent(student, id)
+    } else {
+      alert('Поля возраст и оплата должны быть больше 0')
+    }
   }
 
   return (

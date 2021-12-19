@@ -1,7 +1,7 @@
-import React from "react";
-import axios from "axios";
-import "./App.css";
-import { Modal, Loader, MainContent } from "./components/";
+import React from 'react';
+import axios from 'axios';
+import './App.css';
+import { Modal, Loader, MainContent } from './components/';
 
 function App() {
   const [isModal, setShowModal] = React.useState(false);
@@ -18,7 +18,7 @@ function App() {
 
   const totalPay = studentsList.reduce(
     (accumulator = 0, obj) => accumulator + Number(obj.payment),
-    0
+    0,
   );
 
   const toggleModal = (id) => {
@@ -32,54 +32,49 @@ function App() {
   };
 
   const deleteStudent = (id) => {
-    setIsLoaded(false);
-    axios
-      .delete(`https://61753daa08834f0017c70b7f.mockapi.io/students/${id}`)
-      .then(() =>
-        setStudentsList((prev) => prev.filter((obj) => obj.id !== id))
-      )
-      .then(() => setIsLoaded(true));
+    const confirmDelete = window.confirm('Вы действительно хотите удалить студента?');
+    if (confirmDelete) {
+      setIsLoaded(false);
+      axios
+        .delete(`https://61753daa08834f0017c70b7f.mockapi.io/students/${id}`)
+        .then(() => setStudentsList((prev) => prev.filter((obj) => obj.id !== id)))
+        .then(() => setIsLoaded(true));
+    }
   };
 
   const clearAllStudents = () => {
+    studentsList.forEach((obj) => {
+      axios.delete(`https://61753daa08834f0017c70b7f.mockapi.io/students/${obj.id}`);
+    });
     setStudentsList([]);
   };
 
   const addStudent = (student, id) => {
     setIsLoaded(false);
     if (id) {
-      student = {
-        ...student,
-        avatarURL: `https://source.unsplash.com/50x50/?people`,
-      };
       axios
-        .put(
-          `https://61753daa08834f0017c70b7f.mockapi.io/students/${id}`,
-          student
-        )
-        .then(({ data }) => {
-          setStudentsList((prev) =>
-            prev.map((obj) =>
-              obj.id === id
-                ? {
-                    ...data,
-                  }
-                : obj
-            )
-          );
+        .put(`https://61753daa08834f0017c70b7f.mockapi.io/students/${id}`, {
+          ...student,
+          avatarURL: `https://source.unsplash.com/50x50/?people`,
         })
-        .then(() => setIsLoaded(true));
+        .then(({ data }) => {
+          setStudentsList((prev) => prev.map((obj) => (obj.id === id ? data : obj)));
+          setIsLoaded(true);
+        })
+        .catch((e) => alert(e.message));
 
       setShowModal(false);
     } else {
-      student = {
-        ...student,
-        avatarURL: `https://source.unsplash.com/50x50/?people`,
-      };
       axios
-        .post(`https://61753daa08834f0017c70b7f.mockapi.io/students`, student)
-        .then(({ data }) => setStudentsList([...studentsList, data]))
-        .then(() => setIsLoaded(true));
+        .post(`https://61753daa08834f0017c70b7f.mockapi.io/students`, {
+          ...student,
+          avatarURL: `https://source.unsplash.com/50x50/?people`,
+        })
+        .then(({ data }) => {
+          setStudentsList([...studentsList, data]);
+          setIsLoaded(true);
+        })
+        .catch((e) => alert(e.message));
       setShowModal(false);
     }
   };
@@ -99,13 +94,7 @@ function App() {
           <Loader />
         )}
       </div>
-      {isModal && (
-        <Modal
-          {...studentsEdit}
-          addStudent={addStudent}
-          toggleModal={toggleModal}
-        />
-      )}
+      {isModal && <Modal {...studentsEdit} addStudent={addStudent} toggleModal={toggleModal} />}
     </div>
   );
 }

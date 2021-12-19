@@ -1,24 +1,24 @@
-import React from 'react';
-import './App.css';
-import { StudentsList, Modal, Empty, TotalFooter } from './components/';
+import React from "react";
+import axios from "axios";
+import "./App.css";
+import { Modal, Loader, MainContent } from "./components/";
 
 function App() {
   const [isModal, setShowModal] = React.useState(false);
-  const [studentsList, setStudentsList] = React.useState([
-    {
-      id: 1,
-      avatarURL: 'https://source.unsplash.com/50x50/?people',
-      fullName: 'Петр Петров',
-      age: 24,
-      payment: 5000,
-      gender: 'Мужчина',
-    },
-  ]);
+  const [studentsList, setStudentsList] = React.useState([]);
   const [studentsEdit, setStudentsEdit] = React.useState({});
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    axios
+      .get(`https://61753daa08834f0017c70b7f.mockapi.io/students`)
+      .then(({ data }) => setStudentsList(data))
+      .then(() => setIsLoaded(true));
+  }, []);
 
   const totalPay = studentsList.reduce(
     (accumulator = 0, obj) => accumulator + Number(obj.payment),
-    0,
+    0
   );
 
   const toggleModal = (id) => {
@@ -32,7 +32,13 @@ function App() {
   };
 
   const deleteStudent = (id) => {
-    setStudentsList((prev) => prev.filter((obj) => obj.id !== id));
+    setIsLoaded(false);
+    axios
+      .delete(`https://61753daa08834f0017c70b7f.mockapi.io/students/${id}`)
+      .then(() =>
+        setStudentsList((prev) => prev.filter((obj) => obj.id !== id))
+      )
+      .then(() => setIsLoaded(true));
   };
 
   const clearAllStudents = () => {
@@ -40,32 +46,40 @@ function App() {
   };
 
   const addStudent = (student, id) => {
+    setIsLoaded(false);
     if (id) {
-      setStudentsList((prev) =>
-        prev.map((obj) =>
-          obj.id === id
-            ? {
-                ...student,
-                id: studentsList[studentsList.length - 1]
-                  ? studentsList[studentsList.length - 1].id + 1
-                  : 1,
-                avatarURL: `https://source.unsplash.com/50x50/?people`,
-              }
-            : obj,
-        ),
-      );
+      student = {
+        ...student,
+        avatarURL: `https://source.unsplash.com/50x50/?people`,
+      };
+      axios
+        .put(
+          `https://61753daa08834f0017c70b7f.mockapi.io/students/${id}`,
+          student
+        )
+        .then(({ data }) => {
+          setStudentsList((prev) =>
+            prev.map((obj) =>
+              obj.id === id
+                ? {
+                    ...data,
+                  }
+                : obj
+            )
+          );
+        })
+        .then(() => setIsLoaded(true));
+
       setShowModal(false);
     } else {
-      setStudentsList([
-        ...studentsList,
-        {
-          id: studentsList[studentsList.length - 1]
-            ? studentsList[studentsList.length - 1].id + 1
-            : 1,
-          avatarURL: `https://source.unsplash.com/50x50/?people`,
-          ...student,
-        },
-      ]);
+      student = {
+        ...student,
+        avatarURL: `https://source.unsplash.com/50x50/?people`,
+      };
+      axios
+        .post(`https://61753daa08834f0017c70b7f.mockapi.io/students`, student)
+        .then(({ data }) => setStudentsList([...studentsList, data]))
+        .then(() => setIsLoaded(true));
       setShowModal(false);
     }
   };
@@ -73,23 +87,25 @@ function App() {
   return (
     <div className="App">
       <div className="container">
-        {studentsList.length ? (
-          <StudentsList
-            deleteStudent={deleteStudent}
+        {isLoaded ? (
+          <MainContent
+            studentsList={studentsList}
+            clearAllStudents={clearAllStudents}
             toggleModal={toggleModal}
-            data={studentsList}
+            deleteStudent={deleteStudent}
+            totalPay={totalPay}
           />
         ) : (
-          <Empty toggleModal={toggleModal} />
+          <Loader />
         )}
-        <TotalFooter
-          clearAllStudents={clearAllStudents}
-          totalPay={totalPay}
-          totalStudents={studentsList.length}
-          showModal={toggleModal}
-        />
       </div>
-      {isModal && <Modal {...studentsEdit} addStudent={addStudent} toggleModal={toggleModal} />}
+      {isModal && (
+        <Modal
+          {...studentsEdit}
+          addStudent={addStudent}
+          toggleModal={toggleModal}
+        />
+      )}
     </div>
   );
 }

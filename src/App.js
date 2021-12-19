@@ -13,7 +13,8 @@ function App() {
     axios
       .get(`https://61753daa08834f0017c70b7f.mockapi.io/students`)
       .then(({ data }) => setStudentsList(data))
-      .then(() => setIsLoaded(true));
+      .catch((e) => alert(e.message))
+      .finally(() => setIsLoaded(true));
   }, []);
 
   const totalPay = studentsList.reduce(
@@ -38,7 +39,8 @@ function App() {
       axios
         .delete(`https://61753daa08834f0017c70b7f.mockapi.io/students/${id}`)
         .then(() => setStudentsList((prev) => prev.filter((obj) => obj.id !== id)))
-        .then(() => setIsLoaded(true));
+        .catch((e) => alert(e.message))
+        .finally(() => setIsLoaded(true));
     }
   };
 
@@ -59,9 +61,9 @@ function App() {
         })
         .then(({ data }) => {
           setStudentsList((prev) => prev.map((obj) => (obj.id === id ? data : obj)));
-          setIsLoaded(true);
         })
-        .catch((e) => alert(e.message));
+        .catch((e) => alert(e.message))
+        .finally(() => setIsLoaded(true));
 
       setShowModal(false);
     } else {
@@ -72,9 +74,9 @@ function App() {
         })
         .then(({ data }) => {
           setStudentsList([...studentsList, data]);
-          setIsLoaded(true);
         })
-        .catch((e) => alert(e.message));
+        .catch((e) => alert(e.message))
+        .finally(() => setIsLoaded(true));
       setShowModal(false);
     }
   };
